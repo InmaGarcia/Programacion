@@ -27,25 +27,25 @@ public class ArrayUtils {
 
 	public static void imprimirArray(String[] array) {
 		for (int i = 0; i < array.length; i++) {
-			System.out.print(array[i] + " ");
+			System.out.println(array[i]);  
 		}
 	}
 
 	public static String obtenerPalabra(String[] array, Integer num) {
-		String cadena = "";
-		if (num < array.length) {
-			cadena = array[num];
+	
+		if (num < array.length && num>=0) {
+			return array[num];
 		}
-		return cadena;
+		return "";
 	}
 
 	public static Integer buscarPalabra(String[] array, String cadena) {
-		Integer posicion = -1;
+		
 		for (int i = 0; i < array.length; i++) {
 			if (array[i].equalsIgnoreCase(cadena)) {
-				posicion = i;
+				return i;
 			}
 		}
-		return posicion;
+		return -1;
 	}
 }
