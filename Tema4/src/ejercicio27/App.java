@@ -1,9 +1,6 @@
-package ejercicio25;
+package ejercicio27;
 
 import java.util.Scanner;
-
-import ejercicio22.Alumno;
-import ejercicio22.Curso;
 
 public class App {
 
@@ -18,13 +15,19 @@ public class App {
 
 
 		for (int i = 0; i < alumnos.length; i++) {
+			
 			Alumno alumno = new Alumno();
+			
 			System.out.println("Dime tu nombre");
 			String nombre = sc.nextLine();
-			alumno.setNombre(nombre);			
+			alumno.setNombre(nombre);
+			
 			System.out.println("Dime tu dni");
 			String dni = sc.nextLine();
 			alumno.setDni(dni);
+			if(!alumno.validarDni()) {
+				
+			}
 			System.out.println("Dime tu edad");
 			Integer edad = sc.nextInt();
 			alumno.setEdad(edad);
