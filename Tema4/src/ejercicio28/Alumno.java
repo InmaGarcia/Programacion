@@ -1,6 +1,8 @@
-package ejercicio27;
+package ejercicio28;
 
-import java.util.Objects;
+import java.util.Objects;                                                                                                                                                                                                                                                                                                             
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Alumno extends Persona{
 
@@ -39,7 +41,22 @@ public class Alumno extends Persona{
 	}
 
 	public Boolean validarDni() {
-		return (!dni.isBlank() && dni.length()==9 && dni != null);
+		//Boolean dniOk = false;
+		
+		if (dni == null) {
+			return false;
+		}
+		//String ejemploDni = dni;
+		Pattern patron = Pattern.compile("[0-9]{7,8}[A-Z a-z]");
+		Matcher match = patron.matcher(dni);
+		if (match.matches()) {
+			//System.out.println("El dni es correcto");
+			return true;
+		} else {
+			//System.out.println("El dni es incorrecto");
+			return false;
+		}	
+		//return dniOk;
 	}
 	
 	@Override
