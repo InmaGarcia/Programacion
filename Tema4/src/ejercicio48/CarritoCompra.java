@@ -1,21 +1,21 @@
-package ejercicio47;
+package ejercicio48;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CarritoCompra {
 
 	private LocalDate fechaCreacion;
 	private LocalDate fechaAct;
 	private Cliente cliente;
-	private List<Articulo> articulos;
+	private Set<Articulo> articulos;
 
 	public CarritoCompra(Cliente cliente) {
 		super();
 		this.cliente = cliente;
-		this.articulos = new ArrayList<>();
+		this.articulos = new HashSet<>();
 		this.fechaCreacion = LocalDate.now();
 		this.fechaAct = LocalDate.now();
 	}
@@ -30,10 +30,6 @@ public class CarritoCompra {
 
 	public Cliente getCliente() {
 		return cliente;
-	}
-
-	public List<Articulo> getArticulos() {
-		return articulos;
 	}
 
 	public Integer getCantidad() {
@@ -51,33 +47,33 @@ public class CarritoCompra {
 	public Double getPrecioMedio() {
 		if (getCantidad() == 0) {
 			return 0.0;
-		}			
+		}
 		return getTotal() / getCantidad();
-		
+
 	}
 
 	@Override
 	public String toString() {
 		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyy");
 		return "cliente: " + cliente + ", articulos: " + getCantidad() + ", Total a pagar: " + getTotal()
-				+" euros, Fecha última actualización: " + fechaAct.format(formato);
+				+ " euros, Fecha última actualización: " + fechaAct.format(formato);
 	}
 
 	public void addArticulo(Articulo articulo) {
-		articulos.add(articulo);
-		this.fechaAct= LocalDate.now();
+		if(articulos.add(articulo)) {//add y remove devuelve un boolean
+		this.fechaAct = LocalDate.now();
+		}
 	}
 
-	public void borrarArticulo(int posicion) {
-		if(posicion>=0 && posicion<this.articulos.size()) {//comprobar que la posicion existen
-		articulos.remove(posicion);
-		this.fechaAct= LocalDate.now();
-		}
+	public void borrarArticulo(Articulo articulo) {
+//no tengo que preguntar si existe el objeto porque el remove es de tipo boolean
+				articulos.remove(articulo);
+				this.fechaAct = LocalDate.now();
 	}
 
 	public void vaciarCesta() {
 		articulos.clear();
-		this.fechaAct= LocalDate.now();
+		this.fechaAct = LocalDate.now();
 	}
 
 }
