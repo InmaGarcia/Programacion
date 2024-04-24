@@ -16,6 +16,7 @@ public class App {
 		Scanner sc = new Scanner(System.in);
 		PersonasService service = new PersonasService();
 		// Ejercicio 1
+
 		System.out.println("Dime el DNI de la persona");
 		String dni = sc.nextLine();
 
@@ -61,7 +62,6 @@ public class App {
 					DateTimeFormatter formato = DateTimeFormatter.ofPattern(fecha);
 					LocalDate vNacimiento = LocalDate.parse(fecha, formato);
 
-					
 					p1.validar();
 				} catch (DatosImcompletosException e) {
 					System.out.println("Los datos no están completo");
@@ -70,14 +70,11 @@ public class App {
 
 			} while (error);
 
-			
 			service.insertarPersona(p);
-			
+
 		} catch (SQLException e) {
 			System.out.println("Excepción :" + e.getMessage());
-		} 
-
-		
+		}
 
 		sc.close();
 	}
