@@ -4,8 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public abstract class Movimiento {
-	
-	//public static final el formateo de la fecha
+		
 	
 	public static final String CARGO = "C";
 	public static final String INGRESO = "I";
@@ -38,8 +37,10 @@ public abstract class Movimiento {
 
 	@Override
 	public String toString() {
-		return FORMATO.FECHA.format(fecha)+" - "
+		return "Movimiento fecha=" + fecha+" - Importe: "+ importe
+				+" -Tipo: "+getTipo();
 	}
+
 	
 	
 	

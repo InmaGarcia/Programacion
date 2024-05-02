@@ -48,6 +48,11 @@ public class CuentaAhorros {
 	}
 
 	public void retiradas() {
+		for (Movimiento movimiento : movimientos) {
+			if (movimiento.getTipo().equals("R")) {
+				System.out.println(movimiento);
+			}
+		}
 	}
 
 }
