@@ -1,6 +1,8 @@
 package services;
 
 import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -74,6 +76,77 @@ public class EquiposService {
 		a.setFecha_nacimiento(rs.getDate("NACIMIENTO").toLocalDate());
 
 		return a;
+	}
+
+	private Equipo consultarEquipoCompleto(String codigo) throws EquipoServiceException, NotFoundException {
+
+		String sql = "SELECT * FROM EQUIPO WHERE CODIGO_EQUIPO = ?";
+		try (Connection conn = openConn.getNewConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+			stmt.setString(1, codigo);
+			ResultSet rs = stmt.executeQuery();
+
+			List<Jugador> jugadores = consultarJugadoresEquipo(codigo);
+
+			if (rs.next()) {
+				Equipo e = getEquipoFromResultSet(rs);
+				e.setJugadores(jugadores);
+
+				return e;
+			} else {
+				throw new NotFoundException();
+			}
+
+		} catch (SQLException e) {
+			throw new EquipoServiceException();
+
+		}
+	}
+
+	private void insertarJugador(Connection conn, Jugador j) {
+
+		String sql = "INSERT INTO JUGADOR VALUES (?, ?, ?, ?)";
+
+		try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+			
+				stmt.setInt(1, j.getNum());
+				stmt.setString(2, j.getCodigoEq());
+				stmt.setString(3, j.getNombreJug());
+				stmt.setDate(4, Date.valueOf(j.getFecha_nacimiento()));
+				
+				stmt.executeUpdate();			
+			
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	private void crearEquipo(Equipo e) throws EquipoServiceException {
+		String sql = "INSERT INTO EQUIPO VALUES (?, ?)";
+
+		try (Connection conn = openConn.getNewConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+			conn.setAutoCommit(false);
+			try {
+				stmt.setString(1, e.getCodigo());
+				stmt.setString(2, e.getNombreEq());
+				
+				stmt.executeUpdate();
+				
+				//insertar jugadores con el metodo anterior
+				List<Jugador> jugadores = e.getJugadores();
+				for(Jugador jugador : jugadores) {
+					insertarJugador(conn,jugador);
+				}
+				
+				conn.commit();
+
+			} catch (SQLException y) {
+				conn.rollback();
+				throw new EquipoServiceException();
+			}
+		} catch (SQLException y) {
+			y.printStackTrace();
+		}
 	}
 
 }
