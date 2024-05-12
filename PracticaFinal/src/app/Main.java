@@ -1,11 +1,17 @@
 package app;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
+import modulo.Equipo;
+import modulo.Jugador;
 import services.EquipoServiceException;
 import services.EquiposService;
+import services.NotFoundException;
 
 public class Main {
 
@@ -15,62 +21,159 @@ public class Main {
 	public static void main(String[] args) {
 
 		scanner = new Scanner(System.in);
+		service = new EquiposService();
 
 		Integer opcion;
+		try {
+			do {
+				opcion = menu();
 
-		do {
-			opcion = menu();
+				switch (opcion) {
+				case 1:
+					service.consultarEquipos();
+					break;
 
-			switch (opcion) {
-			case 1:
-				verEquipos();
-				break;
-			case 2:
-				insertarEquipo();
-				break;
-			case 3:
+				case 2:
+						insertarEquipo();					
+					break;
 
-				break;
-			case 0:
-				System.out.println("Bye!!");
-				break;
-			default:
-				System.out.println("La opción indicada no es válida");
-			}
+				case 3:
+					String codigoEq = consultarEquipo();
+					
+					Integer subopcion;
 
-		} while (!opcion.equals("0"));
+					do {
+						subopcion = submenu();
+
+						switch (subopcion) {
+						case 1:
+							imprimirPlantilla(codigoEq);
+							break;
+						case 2:
+
+							service.borrarEquipoCompleto(codigoEq);
+
+							break;
+						case 3:
+							break;
+						case 4:
+							break;
+						case 5:
+							break;
+						case 0:
+							break;
+						default:
+							System.out.println("La opción indicada no es válida");
+						}
+
+					} while (subopcion != 0);
+
+					break;
+
+				case 0:
+					System.out.println("Bye!!");
+					break;
+
+				default:
+					System.out.println("La opción indicada no es válida");
+				}
+
+			} while (opcion != 0);
+
+		} catch (EquipoServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
-	private static void verEquipos() {
-		try {
-			service.consultarEquipos();
-		} catch (EquipoServiceException e) {
-			System.out.println(e.getMessage());
+	private static String consultarEquipo() throws EquipoServiceException, NotFoundException {
+		System.out.println("Dime el código del equipo");
+		String codigoEq = scanner.nextLine();
+		
+		Equipo eq = service.consultarEquipoCompleto(codigoEq);
+		System.out.println("EQUIPO: " + eq.getCodigo() + " / " + eq.getNombreEq());
+		
+		return codigoEq;
+	}
+
+	private static void imprimirPlantilla(String codigoEq) throws SQLException {
+		System.out.println(">> PLANTILLA:");
+		List<Jugador> jugadores = service.consultarJugadoresEquipo(codigoEq);
+
+		for (Jugador j : jugadores) {
+			DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			System.out.println(
+					"\t" + j.getNum() + " - " + j.getNombreJug() + " - " + j.getFecha_nacimiento().format(formato));
 		}
 	}
 
-	private static void insertarEquipo() {
-		String add;
+	private static Integer submenu() {
+		Integer subopcion;
+		System.out.println("---------------------------------------");
+		System.out.println("Elige una de estas opciones para el equipo:");
+		System.out.println("\t(1) Ver plantilla del equipo");
+		System.out.println("\t(2) Borrar Equipo");
+		System.out.println("\t(3) Añadir un jugador");
+		System.out.println("\t(4) Calcular edad media de plantilla");
+		System.out.println("\t(5) Exportar plantilla del equipo al fichero");
+		System.out.println("\t(0) Vol");
+		System.out.println("---------------------------------------");
+		subopcion = scanner.nextInt();
+		return subopcion;
+	}
+
+	private static void insertarEquipo() throws EquipoServiceException {
+		String resp;
+		int num = 0;
+		Equipo e = new Equipo();
+		// pido los datos del equipo
+		System.out.println("Indica Código equipo:");
+		String codigoEq = scanner.nextLine();
+		e.setCodigo(codigoEq);
+
+		System.out.println("Indica Nombre equipo");
+		e.setNombreEq(scanner.nextLine());
+
+		List<Jugador> jugadores = new ArrayList<Jugador>();
+		e.setJugadores(jugadores);
+
 		do {
-			System.out.println("Indica Código equipo:");
-			String codigo = scanner.nextLine();
+			// creo jugador
+			Jugador j = crearJugador(num, codigoEq);
 
-			System.out.println("Indica Nombre equipo");
-			String nombreEq = scanner.nextLine();
-
-			System.out.println("Indica nombre jugador");
-			String nombreJu = scanner.nextLine();
-
-			System.out.println("Indica fecha nacimiento jugador (dd/MM/yyyy)");
-			String fNacimientoCad = scanner.nextLine();
-			DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-			LocalDate fechaNacimiento = LocalDate.parse(fNacimientoCad, formato);
+			// inserto jugador
+			jugadores.add(j);
 
 			System.out.println("¿Deseas añadir otro jugador? (S/N)");
-			add = scanner.nextLine();
+			resp = scanner.nextLine();
 
-		} while (add.equalsIgnoreCase("S"));
+			num++;
+		} while (resp.equalsIgnoreCase("S"));
+
+		service.crearEquipo(e);
+		System.out.println("Equipo guardado!!");
+	}
+
+	private static Jugador crearJugador(int num, String codigoEq) {
+		Jugador j = new Jugador();
+		j.setCodigoEq(codigoEq);
+		j.setNum(num);
+
+		System.out.println("Indica nombre jugador");
+		j.setNombreJug(scanner.nextLine());
+
+		System.out.println("Indica fecha nacimiento jugador (dd/MM/yyyy)");
+		String fNacimientoCad = scanner.nextLine();
+		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		j.setFecha_nacimiento(LocalDate.parse(fNacimientoCad, formato));
+		return j;
 	}
 
 	private static Integer menu() {
